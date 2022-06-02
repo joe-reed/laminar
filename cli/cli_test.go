@@ -34,3 +34,19 @@ func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
 		t.Errorf("Expected success message \"%s\", got \"%s\"", expected, actual)
 	}
 }
+
+func Test_it_outputs_the_next_item(t *testing.T) {
+	store := store.InMemoryStore{}
+	var output bytes.Buffer
+
+	store.Add("My next item")
+
+	Next(&store, &output)
+
+	expected := "My next item\n"
+	actual := output.String()
+
+	if expected != actual {
+		t.Errorf("Expected success message \"%s\", got \"%s\"", expected, actual)
+	}
+}

@@ -12,3 +12,7 @@ func Add(text string, store store.Store, output io.Writer) {
 
 	fmt.Fprintln(output, "Item added")
 }
+
+func Next(store store.Store, output io.Writer) {
+	fmt.Fprintln(output, store.Next())
+}
