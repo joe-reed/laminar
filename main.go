@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joe-reed/laminar/cli"
@@ -8,5 +9,14 @@ import (
 )
 
 func main() {
-	cli.Add(os.Args[1], store.FileStore{Path: "list.txt"}, os.Stderr)
+	store := store.FileStore{Path: "list.txt"}
+	output := os.Stderr
+	switch os.Args[1] {
+	case "add":
+		cli.Add(os.Args[2], store, output)
+	case "next":
+		cli.Next(store, output)
+	default:
+		fmt.Printf("Unrecognised command. Usage:\n    ./bin/laminar add \"My new item\"\n    ./bin/laminar next\n")
+	}
 }
