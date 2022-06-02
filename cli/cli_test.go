@@ -17,7 +17,7 @@ func Test_it_adds_an_item_to_the_store(t *testing.T) {
 	actual := store.Next()
 
 	if expected != actual {
-		t.Errorf("Expected success message \"%s\", got \"%s\"", expected, actual)
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
 	}
 }
 
@@ -31,7 +31,7 @@ func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
 	actual := output.String()
 
 	if expected != actual {
-		t.Errorf("Expected success message \"%s\", got \"%s\"", expected, actual)
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
 	}
 }
 
@@ -47,6 +47,6 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 	actual := output.String()
 
 	if expected != actual {
-		t.Errorf("Expected success message \"%s\", got \"%s\"", expected, actual)
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
 	}
 }
