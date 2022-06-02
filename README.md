@@ -9,3 +9,6 @@ CLI note-taking for focus and flow.
 ## Usage
 - `./bin/laminar add "Your new note"`
 - `./bin/laminar next`
+
+## Tests
+`make test`

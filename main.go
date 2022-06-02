@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
+
+	"github.com/joe-reed/laminar/cli"
+	"github.com/joe-reed/laminar/store"
 )
 
 func main() {
-	fmt.Println(os.Args[1])
+	cli.Add(os.Args[1], store.FileStore{Path: "list.txt"}, os.Stderr)
 }
