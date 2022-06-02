@@ -51,6 +51,22 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 	}
 }
 
+func Test_it_completes_item_when_done(t *testing.T) {
+	store := store.InMemoryStore{}
+
+	store.Add("My next item 1")
+	store.Add("My next item 2")
+
+	Done(&store, &bytes.Buffer{})
+
+	expected := "My next item 2"
+	actual := store.Next()
+
+	if expected != actual {
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
+	}
+}
+
 func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	store := store.InMemoryStore{}
 	var output bytes.Buffer
@@ -64,7 +80,6 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	actual := output.String()
 
 	if expected != actual {
-		// t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
-		t.Errorf("Expected \"%s\", got \"%s\"", "My next item 2", store.Next())
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
 	}
 }
