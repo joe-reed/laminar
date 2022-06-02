@@ -16,6 +16,8 @@ func main() {
 		cli.Add(os.Args[2], store, output)
 	case "next":
 		cli.Next(store, output)
+	case "done":
+		cli.Done(store, output)
 	default:
 		fmt.Printf("Unrecognised command. Usage:\n    ./bin/laminar add \"My new item\"\n    ./bin/laminar next\n")
 	}
