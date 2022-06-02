@@ -2,13 +2,22 @@ package store
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 )
+
+func check(err error) {
+	if err != nil && err != io.EOF {
+		panic(err)
+	}
+}
 
 type Store interface {
 	Add(item string)
 	Next() string
+	Pop() string
 }
 
 type FileStore struct {
@@ -18,9 +27,7 @@ type FileStore struct {
 func (s FileStore) Add(item string) {
 	f, err := os.OpenFile(s.Path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 
 	defer f.Close()
 
@@ -28,20 +35,53 @@ func (s FileStore) Add(item string) {
 }
 
 func (s FileStore) Next() string {
-	file, err := os.Open(s.Path)
+	f, err := os.OpenFile(s.Path, os.O_RDWR|os.O_CREATE, 0666)
+	check(err)
 
-	if err != nil {
-		return ""
-	}
+	defer f.Close()
 
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		return scanner.Text()
 	}
 
 	return ""
+}
+
+func (s FileStore) Pop() string {
+	f, err := os.OpenFile(s.Path, os.O_RDWR|os.O_CREATE, 0666)
+	check(err)
+
+	fi, err := f.Stat()
+	check(err)
+
+	buf := bytes.NewBuffer(make([]byte, 0, fi.Size()))
+
+	_, err = f.Seek(0, io.SeekStart)
+	check(err)
+
+	_, err = io.Copy(buf, f)
+	check(err)
+
+	line, err := buf.ReadBytes('\n')
+	check(err)
+
+	_, err = f.Seek(0, io.SeekStart)
+	check(err)
+
+	nw, err := io.Copy(f, buf)
+	check(err)
+
+	err = f.Truncate(nw)
+	check(err)
+
+	err = f.Sync()
+	check(err)
+
+	_, err = f.Seek(0, io.SeekStart)
+	check(err)
+
+	return string(line[:len(line)-1])
 }
 
 type InMemoryStore []string
@@ -56,4 +96,12 @@ func (s *InMemoryStore) Next() string {
 	}
 
 	return (*s)[0]
+}
+
+func (s *InMemoryStore) Pop() string {
+	item := s.Next()
+
+	*s = (*s)[1:]
+
+	return item
 }
