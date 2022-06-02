@@ -81,6 +81,10 @@ func (s FileStore) Pop() string {
 	_, err = f.Seek(0, io.SeekStart)
 	check(err)
 
+	if len(line) == 0 {
+		return ""
+	}
+
 	return string(line[:len(line)-1])
 }
 
@@ -100,6 +104,10 @@ func (s *InMemoryStore) Next() string {
 
 func (s *InMemoryStore) Pop() string {
 	item := s.Next()
+
+	if len(*s) == 0 {
+		return ""
+	}
 
 	*s = (*s)[1:]
 

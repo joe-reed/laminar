@@ -14,6 +14,7 @@ func runSuite(t *testing.T, factory func() Store, teardown func()) {
 		{"next returns empty string when no items left", testEmptyNext},
 		{"pop removes the next item", testPopRemovesItem},
 		{"pop returns the next item", testPopReturnsItem},
+		{"pop returns empty string when no items left", testEmptyPop},
 	}
 
 	for _, test := range tests {
@@ -65,6 +66,14 @@ func testPopReturnsItem(t *testing.T, s Store) {
 
 	if expected != actual {
 		t.Errorf("Expected %s, got %s", expected, actual)
+	}
+}
+
+func testEmptyPop(t *testing.T, s Store) {
+	actual := s.Pop()
+
+	if "" != string(actual) {
+		t.Errorf("Expected %s, got %s", "", actual)
 	}
 }
 
