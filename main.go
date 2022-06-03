@@ -11,6 +11,12 @@ import (
 func main() {
 	store := store.FileStore{Path: "list.txt"}
 	output := os.Stderr
+
+	if len(os.Args) == 1 {
+		printUsage()
+		return
+	}
+
 	switch os.Args[1] {
 	case "add":
 		cli.Add(os.Args[2], store, output)
@@ -18,7 +24,17 @@ func main() {
 		cli.Next(store, output)
 	case "done":
 		cli.Done(store, output)
+	case "help":
+		printUsage()
 	default:
-		fmt.Printf("Unrecognised command. Usage:\n    ./bin/laminar add \"My new item\"\n    ./bin/laminar next\n")
+		fmt.Println("Unrecognised command")
+		printUsage()
 	}
+}
+
+func printUsage() {
+	fmt.Println("Usage:")
+	fmt.Println("    ./bin/laminar add \"My new item\"")
+	fmt.Println("    ./bin/laminar next")
+	fmt.Println("    ./bin/laminar done")
 }
