@@ -1,6 +1,6 @@
 # Laminar
 
-CLI note-taking for focus and flow.
+CLI todo list for focus and flow.
 
 ## Setup
 - Install [Go](https://go.dev/)
