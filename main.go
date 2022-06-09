@@ -19,6 +19,12 @@ func main() {
 
 	switch os.Args[1] {
 	case "add":
+		if len(os.Args) == 2 {
+			fmt.Println("Paramter for \"add\" missing")
+			printUsage()
+			return
+		}
+
 		cli.Add(os.Args[2], store, output)
 	case "next":
 		cli.Next(store, output)
