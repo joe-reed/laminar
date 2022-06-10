@@ -20,7 +20,7 @@ func main() {
 	switch os.Args[1] {
 	case "add":
 		if len(os.Args) == 2 {
-			fmt.Println("Paramter for \"add\" missing")
+			fmt.Println("Parameter for \"add\" missing")
 			printUsage()
 			return
 		}
