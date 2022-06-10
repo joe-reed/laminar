@@ -14,6 +14,11 @@ func Add(text string, store store.Store, output io.Writer) {
 }
 
 func Next(store store.Store, output io.Writer) {
+	if store.Next() == "" {
+		fmt.Fprintln(output, "All items complete!")
+		return
+	}
+
 	fmt.Fprintln(output, store.Next())
 }
 

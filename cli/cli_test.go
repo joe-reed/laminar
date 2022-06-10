@@ -51,6 +51,20 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 	}
 }
 
+func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *testing.T) {
+	store := store.InMemoryStore{}
+	var output bytes.Buffer
+
+	Next(&store, &output)
+
+	expected := "All items complete!\n"
+	actual := output.String()
+
+	if expected != actual {
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
+	}
+}
+
 func Test_it_completes_item_when_done(t *testing.T) {
 	store := store.InMemoryStore{}
 
