@@ -30,7 +30,7 @@ func testAddingItem(t *testing.T, s Store) {
 	s.Add(expected)
 	actual := s.Next()
 
-	if expected != string(actual) {
+	if expected != actual {
 		t.Errorf("Expected %s, got %s", expected, actual)
 	}
 }
@@ -38,7 +38,7 @@ func testAddingItem(t *testing.T, s Store) {
 func testEmptyNext(t *testing.T, s Store) {
 	actual := s.Next()
 
-	if "" != string(actual) {
+	if actual != "" {
 		t.Errorf("Expected %s, got %s", "", actual)
 	}
 }
@@ -72,7 +72,7 @@ func testPopReturnsItem(t *testing.T, s Store) {
 func testEmptyPop(t *testing.T, s Store) {
 	actual := s.Pop()
 
-	if "" != string(actual) {
+	if actual != "" {
 		t.Errorf("Expected %s, got %s", "", actual)
 	}
 }
