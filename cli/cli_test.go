@@ -83,3 +83,19 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
 	}
 }
+
+func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
+	store := store.InMemoryStore{}
+	var output bytes.Buffer
+
+	store.Add("My next item 1")
+
+	Done(&store, &output)
+
+	expected := "Item complete\nAll items complete!\n"
+	actual := output.String()
+
+	if expected != actual {
+		t.Errorf("Expected \"%s\", got \"%s\"", expected, actual)
+	}
+}

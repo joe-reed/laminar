@@ -20,5 +20,11 @@ func Next(store store.Store, output io.Writer) {
 func Done(store store.Store, output io.Writer) {
 	store.Pop()
 	fmt.Fprintln(output, "Item complete")
-	fmt.Fprintln(output, fmt.Sprintf("Next: %s", store.Next()))
+
+	if store.Next() == "" {
+		fmt.Fprintln(output, "All items complete!")
+		return
+	}
+
+	fmt.Fprintf(output, "Next: %s\n", store.Next())
 }
