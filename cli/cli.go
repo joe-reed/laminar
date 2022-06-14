@@ -7,29 +7,34 @@ import (
 	"github.com/joe-reed/laminar/store"
 )
 
-func Add(text string, store store.Store, output io.Writer) {
-	store.Add(text)
-
-	fmt.Fprintln(output, "Item added")
+type Cli struct {
+	Store  store.Store
+	Output io.Writer
 }
 
-func Next(store store.Store, output io.Writer) {
-	if store.Next() == "" {
-		fmt.Fprintln(output, "All items complete!")
+func (c Cli) Add(text string) {
+	c.Store.Add(text)
+
+	fmt.Fprintln(c.Output, "Item added")
+}
+
+func (c Cli) Next() {
+	if c.Store.Next() == "" {
+		fmt.Fprintln(c.Output, "All items complete!")
 		return
 	}
 
-	fmt.Fprintln(output, store.Next())
+	fmt.Fprintln(c.Output, c.Store.Next())
 }
 
-func Done(store store.Store, output io.Writer) {
-	store.Pop()
-	fmt.Fprintln(output, "Item complete")
+func (c Cli) Done() {
+	c.Store.Pop()
+	fmt.Fprintln(c.Output, "Item complete")
 
-	if store.Next() == "" {
-		fmt.Fprintln(output, "All items complete!")
+	if c.Store.Next() == "" {
+		fmt.Fprintln(c.Output, "All items complete!")
 		return
 	}
 
-	fmt.Fprintf(output, "Next: %s\n", store.Next())
+	fmt.Fprintf(c.Output, "Next: %s\n", c.Store.Next())
 }

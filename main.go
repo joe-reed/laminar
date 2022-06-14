@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joe-reed/laminar/api"
 	"github.com/joe-reed/laminar/cli"
 	"github.com/joe-reed/laminar/store"
 )
 
 func main() {
 	store := store.FileStore{Path: "list.txt"}
-	output := os.Stderr
+
+	c := cli.Cli{
+		Store:  store,
+		Output: os.Stderr,
+	}
 
 	if len(os.Args) == 1 {
 		printUsage()
@@ -25,11 +30,13 @@ func main() {
 			return
 		}
 
-		cli.Add(os.Args[2], store, output)
+		c.Add(os.Args[2])
 	case "next":
-		cli.Next(store, output)
+		c.Next()
 	case "done":
-		cli.Done(store, output)
+		c.Done()
+	case "serve":
+		api.Serve(store)
 	case "help":
 		printUsage()
 	default:
