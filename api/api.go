@@ -30,8 +30,11 @@ func Handler(s store.Store) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
 		c(w).Next()
+	})
+
+	mux.HandleFunc("/done", func(w http.ResponseWriter, r *http.Request) {
+		c(w).Done()
 	})
 
 	return mux
