@@ -50,4 +50,5 @@ func printUsage() {
 	fmt.Println("    ./bin/laminar add \"My new item\"")
 	fmt.Println("    ./bin/laminar next")
 	fmt.Println("    ./bin/laminar done")
+	fmt.Println("    ./bin/laminar serve")
 }
