@@ -1,18 +1,17 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
 
-	"github.com/joe-reed/laminar/cli"
 	"github.com/joe-reed/laminar/store"
 	"github.com/localtunnel/go-localtunnel"
 )
 
 func Serve(s store.Store) {
-
 	server := &http.Server{Handler: Handler(s)}
 
 	err := server.Serve(Listener())
@@ -23,18 +22,14 @@ func Serve(s store.Store) {
 }
 
 func Handler(s store.Store) http.Handler {
-	c := func(w io.Writer) cli.Cli {
-		return cli.Cli{Store: s, Output: w}
-	}
-
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
-		c(w).Next()
+		fmt.Fprint(w, s.Next())
 	})
 
-	mux.HandleFunc("/done", func(w http.ResponseWriter, r *http.Request) {
-		c(w).Done()
+	mux.HandleFunc("/pop", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, s.Pop())
 	})
 
 	mux.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
@@ -46,8 +41,9 @@ func Handler(s store.Store) http.Handler {
 			panic(err)
 		}
 
+		s.Add(string(b))
+
 		w.WriteHeader(http.StatusCreated)
-		c(w).Add(string(b))
 	})
 
 	return mux

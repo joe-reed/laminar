@@ -1,6 +1,10 @@
 package store
 
 import (
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 )
@@ -87,4 +91,44 @@ func TestFileStore(t *testing.T) {
 
 func TestInMemoryStore(t *testing.T) {
 	runSuite(t, func() Store { return &InMemoryStore{} }, func() {})
+}
+
+func TestApiStore(t *testing.T) {
+	store := InMemoryStore{}
+	server := httptest.NewServer(handler(&store))
+	defer server.Close()
+
+	runSuite(
+		t,
+		func() Store { return ApiStore{BaseURL: server.URL, Client: server.Client()} },
+		func() { store = InMemoryStore{} },
+	)
+}
+
+func handler(s Store) http.Handler {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, s.Next())
+	})
+
+	mux.HandleFunc("/pop", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, s.Pop())
+	})
+
+	mux.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+
+		b, err := io.ReadAll(r.Body)
+
+		if err != nil {
+			panic(err)
+		}
+
+		s.Add(string(b))
+
+		w.WriteHeader(http.StatusCreated)
+	})
+
+	return mux
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/joe-reed/laminar/store"
 )
 
-func Test_adding_item_returns_201(t *testing.T) {
+func Test_add_returns_201(t *testing.T) {
 	store := &store.InMemoryStore{}
 
 	rr, _ := post(store, "/add", "")
@@ -19,7 +19,7 @@ func Test_adding_item_returns_201(t *testing.T) {
 	}
 }
 
-func Test_it_adds_an_item_to_the_store(t *testing.T) {
+func Test_add_adds_an_item_to_the_store(t *testing.T) {
 	store := &store.InMemoryStore{}
 
 	want := "My next item"
@@ -33,20 +33,7 @@ func Test_it_adds_an_item_to_the_store(t *testing.T) {
 	}
 }
 
-func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
-	store := &store.InMemoryStore{}
-
-	rr, _ := post(store, "/add", "My next item")
-
-	want := "Item added\n"
-	got := rr.Body.String()
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
-}
-
-func Test_getting_next_item_returns_200(t *testing.T) {
+func Test_next_returns_200(t *testing.T) {
 	store := &store.InMemoryStore{}
 	store.Add("My next item")
 
@@ -57,13 +44,13 @@ func Test_getting_next_item_returns_200(t *testing.T) {
 	}
 }
 
-func Test_it_outputs_the_next_item(t *testing.T) {
+func Test_next_outputs_the_next_item(t *testing.T) {
 	store := &store.InMemoryStore{}
 	store.Add("My next item")
 
 	rr, _ := get(store, "/next")
 
-	want := "My next item\n"
+	want := "My next item"
 	got := rr.Body.String()
 
 	if got != want {
@@ -71,13 +58,12 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 	}
 }
 
-func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *testing.T) {
+func Test_next_outputs_an_empty_string_when_no_items_left(t *testing.T) {
 	store := &store.InMemoryStore{}
-	store.Add("My next item")
 
 	rr, _ := get(store, "/next")
 
-	want := "My next item\n"
+	want := ""
 	got := rr.Body.String()
 
 	if got != want {
@@ -85,24 +71,24 @@ func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *t
 	}
 }
 
-func Test_completing_item_returns_200(t *testing.T) {
+func Test_pop_returns_200(t *testing.T) {
 	store := &store.InMemoryStore{}
 	store.Add("My next item")
 
-	rr, _ := get(store, "/done")
+	rr, _ := get(store, "/pop")
 
 	if status := rr.Code; status != 200 {
 		t.Errorf("got \"%d\" want \"%d\"", status, 200)
 	}
 }
 
-func Test_it_completes_item_when_done(t *testing.T) {
+func Test_pop_removes_item(t *testing.T) {
 	store := &store.InMemoryStore{}
 
 	store.Add("My next item 1")
 	store.Add("My next item 2")
 
-	get(store, "/done")
+	get(store, "/pop")
 
 	want := "My next item 2"
 	got := store.Next()
@@ -112,15 +98,14 @@ func Test_it_completes_item_when_done(t *testing.T) {
 	}
 }
 
-func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
+func Test_pop_outputs_next_item(t *testing.T) {
 	store := &store.InMemoryStore{}
 
 	store.Add("My next item 1")
-	store.Add("My next item 2")
 
-	rr, _ := get(store, "/done")
+	rr, _ := get(store, "/pop")
 
-	want := "Item complete\nNext: My next item 2\n"
+	want := "My next item 1"
 	got := rr.Body.String()
 
 	if got != want {
@@ -128,14 +113,12 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	}
 }
 
-func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
+func Test_pop_outputs_empty_string_when_no_items_left(t *testing.T) {
 	store := &store.InMemoryStore{}
 
-	store.Add("My next item 1")
+	rr, _ := get(store, "/pop")
 
-	rr, _ := get(store, "/done")
-
-	want := "Item complete\nAll items complete!\n"
+	want := ""
 	got := rr.Body.String()
 
 	if got != want {

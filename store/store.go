@@ -5,7 +5,9 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"strings"
 )
 
 func check(err error) {
@@ -112,4 +114,53 @@ func (s *InMemoryStore) Pop() string {
 	*s = (*s)[1:]
 
 	return item
+}
+
+type ApiStore struct {
+	BaseURL string
+	Client  *http.Client
+}
+
+func (s ApiStore) Add(item string) {
+	_, err := s.Client.Post(s.BaseURL+"/add", "text/plain", strings.NewReader(item))
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (s ApiStore) Next() string {
+	r, err := s.Client.Get(s.BaseURL + "/next")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer r.Body.Close()
+
+	b, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(b)
+}
+
+func (s ApiStore) Pop() string {
+	r, err := s.Client.Get(s.BaseURL + "/pop")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer r.Body.Close()
+
+	b, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(b)
 }
