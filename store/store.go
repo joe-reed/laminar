@@ -124,43 +124,29 @@ type ApiStore struct {
 func (s ApiStore) Add(item string) {
 	_, err := s.Client.Post(s.BaseURL+"/add", "text/plain", strings.NewReader(item))
 
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 }
 
 func (s ApiStore) Next() string {
 	r, err := s.Client.Get(s.BaseURL + "/next")
 
-	if err != nil {
-		panic(err)
-	}
-
-	defer r.Body.Close()
-
-	b, err := io.ReadAll(r.Body)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return string(b)
+	return responseToString(r, err)
 }
 
 func (s ApiStore) Pop() string {
 	r, err := s.Client.Get(s.BaseURL + "/pop")
 
-	if err != nil {
-		panic(err)
-	}
+	return responseToString(r, err)
+}
+
+func responseToString(r *http.Response, err error) string {
+	check(err)
 
 	defer r.Body.Close()
 
 	b, err := io.ReadAll(r.Body)
 
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 
 	return string(b)
 }
