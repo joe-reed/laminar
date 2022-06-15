@@ -1,18 +1,18 @@
-package store
+package store_test
 
 import (
-	"fmt"
-	"io"
-	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/joe-reed/laminar/api"
+	"github.com/joe-reed/laminar/store"
 )
 
-func runSuite(t *testing.T, factory func() Store, teardown func()) {
+func runSuite(t *testing.T, factory func() store.Store, teardown func()) {
 	tests := []struct {
 		title string
-		run   func(t *testing.T, s Store)
+		run   func(t *testing.T, s store.Store)
 	}{
 		{"an added item is stored", testAddingItem},
 		{"next returns empty string when no items left", testEmptyNext},
@@ -29,7 +29,7 @@ func runSuite(t *testing.T, factory func() Store, teardown func()) {
 	}
 }
 
-func testAddingItem(t *testing.T, s Store) {
+func testAddingItem(t *testing.T, s store.Store) {
 	expected := "My new item"
 	s.Add(expected)
 	actual := s.Next()
@@ -39,7 +39,7 @@ func testAddingItem(t *testing.T, s Store) {
 	}
 }
 
-func testEmptyNext(t *testing.T, s Store) {
+func testEmptyNext(t *testing.T, s store.Store) {
 	actual := s.Next()
 
 	if actual != "" {
@@ -47,7 +47,7 @@ func testEmptyNext(t *testing.T, s Store) {
 	}
 }
 
-func testPopRemovesItem(t *testing.T, s Store) {
+func testPopRemovesItem(t *testing.T, s store.Store) {
 	expected := "Item 2"
 	s.Add("Item 1")
 	s.Add(expected)
@@ -61,7 +61,7 @@ func testPopRemovesItem(t *testing.T, s Store) {
 	}
 }
 
-func testPopReturnsItem(t *testing.T, s Store) {
+func testPopReturnsItem(t *testing.T, s store.Store) {
 	expected := "Item 1"
 	s.Add(expected)
 	s.Add("Item 2")
@@ -73,7 +73,7 @@ func testPopReturnsItem(t *testing.T, s Store) {
 	}
 }
 
-func testEmptyPop(t *testing.T, s Store) {
+func testEmptyPop(t *testing.T, s store.Store) {
 	actual := s.Pop()
 
 	if actual != "" {
@@ -84,51 +84,23 @@ func testEmptyPop(t *testing.T, s Store) {
 func TestFileStore(t *testing.T) {
 	runSuite(
 		t,
-		func() Store { return FileStore{"./test.txt"} },
+		func() store.Store { return store.FileStore{"./test.txt"} },
 		func() { os.Remove("./test.txt") },
 	)
 }
 
 func TestInMemoryStore(t *testing.T) {
-	runSuite(t, func() Store { return &InMemoryStore{} }, func() {})
+	runSuite(t, func() store.Store { return &store.InMemoryStore{} }, func() {})
 }
 
 func TestApiStore(t *testing.T) {
-	store := InMemoryStore{}
-	server := httptest.NewServer(handler(&store))
+	s := store.InMemoryStore{}
+	server := httptest.NewServer(api.Handler(&s))
 	defer server.Close()
 
 	runSuite(
 		t,
-		func() Store { return ApiStore{BaseURL: server.URL, Client: server.Client()} },
-		func() { store = InMemoryStore{} },
+		func() store.Store { return store.ApiStore{BaseURL: server.URL, Client: server.Client()} },
+		func() { s = store.InMemoryStore{} },
 	)
-}
-
-func handler(s Store) http.Handler {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, s.Next())
-	})
-
-	mux.HandleFunc("/pop", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, s.Pop())
-	})
-
-	mux.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-
-		b, err := io.ReadAll(r.Body)
-
-		if err != nil {
-			panic(err)
-		}
-
-		s.Add(string(b))
-
-		w.WriteHeader(http.StatusCreated)
-	})
-
-	return mux
 }
