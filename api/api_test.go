@@ -9,6 +9,16 @@ import (
 	"github.com/joe-reed/laminar/store"
 )
 
+func Test_adding_item_returns_201(t *testing.T) {
+	store := &store.InMemoryStore{}
+
+	rr, _ := post(store, "/add", "")
+
+	if status := rr.Code; status != 201 {
+		t.Errorf("got \"%d\" want \"%d\"", status, 201)
+	}
+}
+
 func Test_it_adds_an_item_to_the_store(t *testing.T) {
 	store := &store.InMemoryStore{}
 

@@ -46,6 +46,7 @@ func Handler(s store.Store) http.Handler {
 			panic(err)
 		}
 
+		w.WriteHeader(http.StatusCreated)
 		c(w).Add(string(b))
 	})
 
