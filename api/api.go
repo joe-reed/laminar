@@ -37,6 +37,18 @@ func Handler(s store.Store) http.Handler {
 		c(w).Done()
 	})
 
+	mux.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+
+		b, err := io.ReadAll(r.Body)
+
+		if err != nil {
+			panic(err)
+		}
+
+		c(w).Add(string(b))
+	})
+
 	return mux
 }
 
