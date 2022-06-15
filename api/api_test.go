@@ -1,4 +1,4 @@
-package api
+package api_test
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/joe-reed/laminar/api"
 	"github.com/joe-reed/laminar/store"
 )
 
@@ -143,7 +144,7 @@ func handleRequest(s store.Store, url string, method string, body string) (*http
 
 	rr := httptest.NewRecorder()
 
-	Handler(s).ServeHTTP(rr, req)
+	api.Handler(s).ServeHTTP(rr, req)
 
 	return rr, nil
 }

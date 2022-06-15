@@ -1,14 +1,15 @@
-package cli
+package cli_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/joe-reed/laminar/cli"
 	"github.com/joe-reed/laminar/store"
 )
 
 func Test_it_adds_an_item_to_the_store(t *testing.T) {
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &bytes.Buffer{},
 	}
@@ -27,7 +28,7 @@ func Test_it_adds_an_item_to_the_store(t *testing.T) {
 func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
 	output := bytes.Buffer{}
 
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &output,
 	}
@@ -45,7 +46,7 @@ func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
 func Test_it_outputs_the_next_item(t *testing.T) {
 	output := bytes.Buffer{}
 
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &output,
 	}
@@ -65,7 +66,7 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *testing.T) {
 	output := bytes.Buffer{}
 
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &output,
 	}
@@ -81,7 +82,7 @@ func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *t
 }
 
 func Test_it_completes_item_when_done(t *testing.T) {
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &bytes.Buffer{},
 	}
@@ -102,7 +103,7 @@ func Test_it_completes_item_when_done(t *testing.T) {
 func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	output := bytes.Buffer{}
 
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &output,
 	}
@@ -123,7 +124,7 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
 	output := bytes.Buffer{}
 
-	c := Cli{
+	c := cli.Cli{
 		Store:  &store.InMemoryStore{},
 		Output: &output,
 	}
