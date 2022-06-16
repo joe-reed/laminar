@@ -85,8 +85,8 @@ func testEmptyPop(t *testing.T, s store.Store) {
 func TestFileStore(t *testing.T) {
 	runSuite(
 		t,
-		func() store.Store { return store.FileStore{"./test.txt"} },
-		func() { os.Remove("./test.txt") },
+		func() store.Store { return store.FileStore{"./list_test.txt"} },
+		func() { os.Remove("./list_test.txt") },
 	)
 }
 

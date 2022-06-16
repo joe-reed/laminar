@@ -2,18 +2,29 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/joe-reed/laminar/api"
 	"github.com/joe-reed/laminar/cli"
+	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
 )
 
 func main() {
-	store := store.FileStore{Path: "list.txt"}
+	cf := config.ConfigFile{Path: "config.txt"}
+	config := cf.GetConfig()
+
+	var s store.Store
+	switch config.Store {
+	case "api":
+		s = store.ApiStore{BaseURL: config.Path, Client: http.DefaultClient}
+	case "file":
+		s = store.FileStore{Path: config.Path}
+	}
 
 	c := cli.Cli{
-		Store:  store,
+		Store:  s,
 		Output: os.Stderr,
 	}
 
@@ -36,7 +47,9 @@ func main() {
 	case "done":
 		c.Done()
 	case "serve":
-		api.Serve(store)
+		api.Serve(s)
+	case "configure":
+		cf.SetStore(os.Args[2], os.Args[3])
 	case "help":
 		printUsage()
 	default:
