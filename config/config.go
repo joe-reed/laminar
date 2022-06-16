@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -16,7 +17,12 @@ type ConfigFile struct {
 	Path string
 }
 
-func (c ConfigFile) SetStore(store string, path string) {
+func (c ConfigFile) SetStore(path string) {
+	store := "file"
+	if isUrl(path) {
+		store = "api"
+	}
+
 	f, err := os.Create(c.Path)
 	check(err)
 
@@ -50,4 +56,18 @@ func (c ConfigFile) GetConfig() Config {
 type Config struct {
 	Store string
 	Path  string
+}
+
+func isUrl(s string) bool {
+	_, err := url.ParseRequestURI(s)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(s)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return true
 }

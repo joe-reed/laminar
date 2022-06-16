@@ -11,7 +11,7 @@ func Test_setting_api_store_config(t *testing.T) {
 	c := config.ConfigFile{Path: "config_test.txt"}
 	defer os.Remove("./config_test.txt")
 
-	c.SetStore("api", "http://foobar.test")
+	c.SetStore("http://foobar.test")
 
 	got := c.GetConfig()
 	want := config.Config{Store: "api", Path: "http://foobar.test"}
@@ -24,7 +24,7 @@ func Test_setting_file_store_config(t *testing.T) {
 	c := config.ConfigFile{Path: "config_test.txt"}
 	defer os.Remove("./config_test.txt")
 
-	c.SetStore("file", "foo.txt")
+	c.SetStore("foo.txt")
 
 	got := c.GetConfig()
 	want := config.Config{Store: "file", Path: "foo.txt"}
@@ -37,8 +37,8 @@ func Test_config_is_overwritten(t *testing.T) {
 	c := config.ConfigFile{Path: "config_test.txt"}
 	defer os.Remove("./config_test.txt")
 
-	c.SetStore("api", "http://foobar.test")
-	c.SetStore("file", "foo.txt")
+	c.SetStore("http://foobar.test")
+	c.SetStore("foo.txt")
 
 	got := c.GetConfig()
 	want := config.Config{Store: "file", Path: "foo.txt"}

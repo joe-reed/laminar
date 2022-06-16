@@ -49,7 +49,7 @@ func main() {
 	case "serve":
 		api.Serve(s)
 	case "configure":
-		cf.SetStore(os.Args[2], os.Args[3])
+		cf.SetStore(os.Args[2])
 	case "help":
 		printUsage()
 	default:
