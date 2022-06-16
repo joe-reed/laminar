@@ -28,12 +28,12 @@ type FileStore struct {
 
 func (s FileStore) Add(item string) {
 	f, err := os.OpenFile(s.Path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
 	check(err)
 
 	defer f.Close()
 
-	f.WriteString(fmt.Sprintf("%s\n", item))
+	_, err = f.WriteString(fmt.Sprintf("%s\n", item))
+	check(err)
 }
 
 func (s FileStore) Next() string {
@@ -122,26 +122,37 @@ type ApiStore struct {
 }
 
 func (s ApiStore) Add(item string) {
-	_, err := s.Client.Post(s.BaseURL+"/add", "text/plain", strings.NewReader(item))
-
+	r, err := s.Client.Post(s.BaseURL+"/add", "text/plain", strings.NewReader(item))
 	check(err)
+
+	if status := r.StatusCode; status != http.StatusCreated {
+		panic(fmt.Sprintf("received status code %d", status))
+	}
 }
 
 func (s ApiStore) Next() string {
 	r, err := s.Client.Get(s.BaseURL + "/next")
+	check(err)
 
-	return responseToString(r, err)
+	if status := r.StatusCode; status != http.StatusOK {
+		panic(fmt.Sprintf("received status code %d", status))
+	}
+
+	return responseToString(r)
 }
 
 func (s ApiStore) Pop() string {
 	r, err := s.Client.Get(s.BaseURL + "/pop")
-
-	return responseToString(r, err)
-}
-
-func responseToString(r *http.Response, err error) string {
 	check(err)
 
+	if status := r.StatusCode; status != http.StatusOK {
+		panic(fmt.Sprintf("received status code %d", status))
+	}
+
+	return responseToString(r)
+}
+
+func responseToString(r *http.Response) string {
 	defer r.Body.Close()
 
 	b, err := io.ReadAll(r.Body)

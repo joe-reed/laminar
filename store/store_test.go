@@ -1,6 +1,7 @@
 package store_test
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -103,4 +104,39 @@ func TestApiStore(t *testing.T) {
 		func() store.Store { return store.ApiStore{BaseURL: server.URL, Client: server.Client()} },
 		func() { s = store.InMemoryStore{} },
 	)
+}
+
+func Test_api_store_panics_when_receiving_unexpected_status_code(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+	}))
+	defer server.Close()
+
+	s := store.ApiStore{BaseURL: server.URL, Client: server.Client()}
+
+	tests := []struct {
+		title string
+		run   func()
+	}{
+		{"pop", func() { s.Pop() }},
+		{"next", func() { s.Next() }},
+		{"add", func() { s.Add("foo") }},
+	}
+
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			defer func() {
+				got := recover()
+				if got == nil {
+					t.Errorf("The code did not panic")
+				}
+
+				want := "received status code 404"
+				if got != want {
+					t.Errorf("got \"%s\", want \"%s\"", got, want)
+				}
+			}()
+			test.run()
+		})
+	}
 }
