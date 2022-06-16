@@ -49,6 +49,12 @@ func main() {
 	case "serve":
 		api.Serve(s)
 	case "configure":
+		if len(os.Args) == 2 {
+			fmt.Println("Parameter for \"configure\" missing")
+			printUsage()
+			return
+		}
+
 		cf.SetStore(os.Args[2])
 	case "help":
 		printUsage()
@@ -64,4 +70,5 @@ func printUsage() {
 	fmt.Println("    ./bin/laminar next")
 	fmt.Println("    ./bin/laminar done")
 	fmt.Println("    ./bin/laminar serve")
+	fmt.Println("    ./bin/laminar configure \"http://my-api-url.test")
 }
