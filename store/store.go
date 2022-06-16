@@ -87,6 +87,9 @@ func (s FileStore) Pop() string {
 		return ""
 	}
 
+	err = f.Close()
+	check(err)
+
 	return string(line[:len(line)-1])
 }
 
