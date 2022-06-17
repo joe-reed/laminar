@@ -56,6 +56,7 @@ func main() {
 		}
 
 		cf.SetStore(os.Args[2])
+		fmt.Printf("Configured: %s\n", cf.GetConfig().Path)
 	case "help":
 		printUsage()
 	default:
