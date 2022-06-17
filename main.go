@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/joe-reed/laminar/api"
 	"github.com/joe-reed/laminar/cli"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	cf := config.ConfigFile{Path: "config.txt"}
+	cf := config.ConfigFile{Path: getConfigPath()}
 	config := cf.GetConfig()
 
 	var s store.Store
@@ -72,4 +73,20 @@ func printUsage() {
 	fmt.Println("    ./bin/laminar done")
 	fmt.Println("    ./bin/laminar serve")
 	fmt.Println("    ./bin/laminar configure \"http://my-api-url.test")
+}
+
+func getConfigPath() string {
+	dirname, err := os.UserHomeDir()
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.MkdirAll(filepath.Join(dirname, ".laminar"), os.ModePerm)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return filepath.Join(dirname, ".laminar", "config.txt")
 }
