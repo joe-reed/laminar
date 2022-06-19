@@ -15,7 +15,7 @@ func NewConfigureCommand(s store.Store, cf config.ConfigFile) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			cf.SetStore(args[0])
-			fmt.Printf("Configured: %s\n", cf.GetConfig().Path)
+			fmt.Printf("Configured: %s\n", args[0])
 		},
 	}
 }

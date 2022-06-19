@@ -101,7 +101,7 @@ func TestApiStore(t *testing.T) {
 
 	runSuite(
 		t,
-		func() store.Store { return store.ApiStore{BaseURL: server.URL, Client: server.Client()} },
+		func() store.Store { return store.ApiStore{BaseUrl: server.URL, Client: server.Client()} },
 		func() { s = store.InMemoryStore{} },
 	)
 }
@@ -112,7 +112,7 @@ func Test_api_store_panics_when_receiving_unexpected_status_code(t *testing.T) {
 	}))
 	defer server.Close()
 
-	s := store.ApiStore{BaseURL: server.URL, Client: server.Client()}
+	s := store.ApiStore{BaseUrl: server.URL, Client: server.Client()}
 
 	tests := []struct {
 		title string

@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/joe-reed/laminar/store"
 )
 
 func check(err error) {
@@ -39,21 +41,32 @@ func (c ConfigFile) SetStore(path string) {
 	check(err)
 }
 
-func (c ConfigFile) GetConfig() Config {
+func (c ConfigFile) GetStore() store.Store {
+	config := c.getConfig()
+
+	switch config.Store {
+	case "api":
+		return store.NewApiStore(config.Path)
+	default:
+		return store.FileStore{Path: config.Path}
+	}
+}
+
+func (c ConfigFile) getConfig() config {
 	_, err := os.Stat(c.Path)
 
 	if err != nil {
-		return Config{Store: "file", Path: "list.txt"}
+		return config{Store: "file", Path: "list.txt"}
 	}
 
 	b, err := os.ReadFile(c.Path)
 	check(err)
 
 	lines := strings.Split(string(b), "\n")
-	return Config{Store: lines[0], Path: lines[1]}
+	return config{Store: lines[0], Path: lines[1]}
 }
 
-type Config struct {
+type config struct {
 	Store string
 	Path  string
 }

@@ -120,12 +120,16 @@ func (s *InMemoryStore) Pop() string {
 }
 
 type ApiStore struct {
-	BaseURL string
+	BaseUrl string
 	Client  *http.Client
 }
 
+func NewApiStore(baseUrl string) Store {
+	return ApiStore{BaseUrl: baseUrl, Client: http.DefaultClient}
+}
+
 func (s ApiStore) Add(item string) {
-	r, err := s.Client.Post(s.BaseURL+"/add", "text/plain", strings.NewReader(item))
+	r, err := s.Client.Post(s.BaseUrl+"/add", "text/plain", strings.NewReader(item))
 	check(err)
 
 	if status := r.StatusCode; status != http.StatusCreated {
@@ -134,7 +138,7 @@ func (s ApiStore) Add(item string) {
 }
 
 func (s ApiStore) Next() string {
-	r, err := s.Client.Get(s.BaseURL + "/next")
+	r, err := s.Client.Get(s.BaseUrl + "/next")
 	check(err)
 
 	if status := r.StatusCode; status != http.StatusOK {
@@ -145,7 +149,7 @@ func (s ApiStore) Next() string {
 }
 
 func (s ApiStore) Pop() string {
-	r, err := s.Client.Get(s.BaseURL + "/pop")
+	r, err := s.Client.Get(s.BaseUrl + "/pop")
 	check(err)
 
 	if status := r.StatusCode; status != http.StatusOK {
