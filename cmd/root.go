@@ -1,15 +1,12 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
 	"github.com/spf13/cobra"
 )
 
-func NewRootCommand(s store.Store, cf config.ConfigFile) *cobra.Command {
+func NewRootCommand(s store.Store, c *config.Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "laminar",
 		Short: "CLI todo list for focus and flow.",
@@ -20,15 +17,13 @@ Work alone with a file-based list, or collaborate with others through simple bui
 	cmd.AddCommand(NewAddCommand(s))
 	cmd.AddCommand(NewNextCommand(s))
 	cmd.AddCommand(NewDoneCommand(s))
-	cmd.AddCommand(NewConfigureCommand(s, cf))
+	cmd.AddCommand(NewConfigureCommand(c))
 	cmd.AddCommand(NewServeCommand(s))
 
 	return cmd
 }
 
-func Execute(s store.Store, cf config.ConfigFile) {
-	if err := NewRootCommand(s, cf).Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+func Execute(s store.Store, c *config.Config) {
+	err := NewRootCommand(s, c).Execute()
+	cobra.CheckErr(err)
 }

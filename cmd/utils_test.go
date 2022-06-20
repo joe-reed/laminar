@@ -9,15 +9,19 @@ import (
 	"github.com/joe-reed/laminar/store"
 )
 
-func runCommand(t *testing.T, s store.Store, args []string) string {
-	cmd := cmd.NewRootCommand(s, config.ConfigFile{Path: t.TempDir()})
+func runCommand(t *testing.T, s store.Store, c *config.Config, args []string) string {
+	cmd := cmd.NewRootCommand(s, c)
 
 	output := &bytes.Buffer{}
 	cmd.SetOut(output)
 
 	cmd.SetArgs(args)
 
-	cmd.Execute()
+	err := cmd.Execute()
+
+	if err != nil {
+		t.Error(err)
+	}
 
 	return output.String()
 }

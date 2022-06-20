@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -20,6 +21,24 @@ type Store interface {
 	Add(item string)
 	Next() string
 	Pop() string
+}
+
+func FromPath(path string) Store {
+	if isUrl(path) {
+		return NewApiStore(path)
+	}
+
+	return FileStore{Path: path}
+}
+
+func isUrl(s string) bool {
+	_, err := url.ParseRequestURI(s)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(s)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
 type FileStore struct {

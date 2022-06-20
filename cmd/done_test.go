@@ -3,6 +3,7 @@ package cmd_test
 import (
 	"testing"
 
+	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
 )
 
@@ -50,5 +51,5 @@ func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
 }
 
 func runDone(t *testing.T, s store.Store) string {
-	return runCommand(t, s, []string{"done"})
+	return runCommand(t, s, config.New(), []string{"done"})
 }

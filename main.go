@@ -1,31 +1,15 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/joe-reed/laminar/cmd"
 	"github.com/joe-reed/laminar/config"
+	"github.com/joe-reed/laminar/store"
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	cf := config.ConfigFile{Path: getConfigPath()}
+	c, err := config.Load()
+	cobra.CheckErr(err)
 
-	cmd.Execute(cf.GetStore(), cf)
-}
-
-func getConfigPath() string {
-	dirname, err := os.UserHomeDir()
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = os.MkdirAll(filepath.Join(dirname, ".laminar"), os.ModePerm)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return filepath.Join(dirname, ".laminar", "config.txt")
+	cmd.Execute(store.FromPath(c.GetStorePath()), c)
 }

@@ -2,85 +2,60 @@ package config
 
 import (
 	"fmt"
-	"net/url"
 	"os"
-	"strings"
+	"path/filepath"
 
-	"github.com/joe-reed/laminar/store"
+	"github.com/spf13/viper"
 )
 
-func check(err error) {
+type Config struct {
+	V *viper.Viper
+}
+
+func New() *Config {
+	return &Config{V: viper.New()}
+}
+
+func Load() (*Config, error) {
+	v := viper.New()
+
+	home, err := os.UserHomeDir()
 	if err != nil {
-		panic(err)
-	}
-}
-
-type ConfigFile struct {
-	Path string
-}
-
-func (c ConfigFile) SetStore(path string) {
-	store := "file"
-	if isUrl(path) {
-		store = "api"
+		return nil, err
 	}
 
-	f, err := os.Create(c.Path)
-	check(err)
+	path := filepath.Join(home, ".laminar")
+	v.AddConfigPath(path)
+	v.SetConfigName("config")
+	v.SetConfigType("yaml")
+	v.SetDefault("store.path", "list.txt")
 
-	err = f.Truncate(0)
-	check(err)
+	if err := v.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			fmt.Println("config file not found")
 
-	_, err = f.Seek(0, 0)
-	check(err)
+			err := os.MkdirAll(path, os.ModePerm)
+			if err != nil {
+				return nil, err
+			}
 
-	_, err = fmt.Fprintf(f, "%s\n%s", store, path)
-	check(err)
-
-	err = f.Close()
-	check(err)
-}
-
-func (c ConfigFile) GetStore() store.Store {
-	config := c.getConfig()
-
-	switch config.Store {
-	case "api":
-		return store.NewApiStore(config.Path)
-	default:
-		return store.FileStore{Path: config.Path}
-	}
-}
-
-func (c ConfigFile) getConfig() config {
-	_, err := os.Stat(c.Path)
-
-	if err != nil {
-		return config{Store: "file", Path: "list.txt"}
+			err = v.SafeWriteConfigAs(filepath.Join(path, "config.yaml"))
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 
-	b, err := os.ReadFile(c.Path)
-	check(err)
-
-	lines := strings.Split(string(b), "\n")
-	return config{Store: lines[0], Path: lines[1]}
+	return &Config{V: v}, nil
 }
 
-type config struct {
-	Store string
-	Path  string
+func (c *Config) SetStorePath(path string) error {
+	c.V.Set("store.path", path)
+	return c.V.WriteConfig()
 }
 
-func isUrl(s string) bool {
-	_, err := url.ParseRequestURI(s)
-	if err != nil {
-		return false
-	}
-
-	u, err := url.Parse(s)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return false
-	}
-
-	return true
+func (c *Config) GetStorePath() string {
+	return c.V.GetString("store.path")
 }

@@ -3,6 +3,7 @@ package cmd_test
 import (
 	"testing"
 
+	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
 )
 
@@ -29,5 +30,5 @@ func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
 }
 
 func runAdd(t *testing.T, s store.Store, item string) string {
-	return runCommand(t, s, []string{"add", item})
+	return runCommand(t, s, config.New(), []string{"add", item})
 }
