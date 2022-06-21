@@ -37,12 +37,7 @@ func Test_it_outputs_success_message(t *testing.T) {
 
 func getConfig() (c *config.Config, path string) {
 	path = "./config_test.yaml"
-	os.Create(path)
-
-	c = config.New()
-	c.V.AddConfigPath(".")
-	c.V.SetConfigName("config_test")
-	c.V.SetConfigType("yaml")
+	c, _ = config.Load(path)
 
 	return
 }

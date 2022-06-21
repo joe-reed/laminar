@@ -5,7 +5,6 @@ import (
 
 	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
-	"github.com/spf13/viper"
 )
 
 func Test_it_outputs_the_next_item(t *testing.T) {
@@ -33,5 +32,5 @@ func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *t
 }
 
 func runNext(t *testing.T, s store.Store) string {
-	return runCommand(t, s, &config.Config{V: viper.New()}, []string{"next"})
+	return runCommand(t, s, config.New(), []string{"next"})
 }

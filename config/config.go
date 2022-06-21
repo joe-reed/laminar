@@ -1,45 +1,40 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	V *viper.Viper
+	v *viper.Viper
 }
 
 func New() *Config {
-	return &Config{V: viper.New()}
+	return &Config{v: viper.New()}
 }
 
-func Load() (*Config, error) {
+func Load(file string) (*Config, error) {
 	v := viper.New()
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
+	ext := filepath.Ext(file)
 
-	path := filepath.Join(home, ".laminar")
-	v.AddConfigPath(path)
-	v.SetConfigName("config")
-	v.SetConfigType("yaml")
+	v.AddConfigPath(filepath.Dir(file))
+	v.SetConfigName(strings.TrimSuffix(filepath.Base(file), ext))
+	v.SetConfigType(ext[1:])
+
 	v.SetDefault("store.path", "list.txt")
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			fmt.Println("config file not found")
-
-			err := os.MkdirAll(path, os.ModePerm)
+			err := os.MkdirAll(filepath.Dir(file), os.ModePerm)
 			if err != nil {
 				return nil, err
 			}
 
-			err = v.SafeWriteConfigAs(filepath.Join(path, "config.yaml"))
+			err = v.SafeWriteConfigAs(file)
 			if err != nil {
 				return nil, err
 			}
@@ -48,14 +43,14 @@ func Load() (*Config, error) {
 		}
 	}
 
-	return &Config{V: v}, nil
+	return &Config{v: v}, nil
 }
 
 func (c *Config) SetStorePath(path string) error {
-	c.V.Set("store.path", path)
-	return c.V.WriteConfig()
+	c.v.Set("store.path", path)
+	return c.v.WriteConfig()
 }
 
 func (c *Config) GetStorePath() string {
-	return c.V.GetString("store.path")
+	return c.v.GetString("store.path")
 }
