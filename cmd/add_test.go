@@ -15,8 +15,8 @@ func Test_it_adds_an_item_to_the_store(t *testing.T) {
 
 	got, _ := s.Next()
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -24,8 +24,8 @@ func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
 	want := "Item added\n"
 	got := runAdd(t, &store.InMemoryStore{}, "Test item")
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 

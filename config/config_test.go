@@ -15,8 +15,8 @@ func Test_it_sets_store_config(t *testing.T) {
 	got := c.GetStorePath()
 	want := "/path/to/store.txt"
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -37,7 +37,7 @@ func Test_it_loads_and_writes_to_file(t *testing.T) {
 	got := c.GetStorePath()
 	want := "/path/to/store.txt"
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }

@@ -27,54 +27,56 @@ func runSuite(t *testing.T, factory func() store.Store, teardown func()) {
 }
 
 func testAddingItem(t *testing.T, s store.Store) {
-	expected := "My new item"
-	s.Add(expected)
-	actual, _ := s.Next()
+	want := "My new item"
+	s.Add(want)
+	got, _ := s.Next()
 
-	if expected != actual {
-		t.Errorf("Expected %s, got %s", expected, actual)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
 func testEmptyNext(t *testing.T, s store.Store) {
-	actual, _ := s.Next()
+	got, _ := s.Next()
+	want := ""
 
-	if actual != "" {
-		t.Errorf("Expected %s, got %s", "", actual)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
 func testPopRemovesItem(t *testing.T, s store.Store) {
-	expected := "Item 2"
+	want := "Item 2"
 	s.Add("Item 1")
-	s.Add(expected)
+	s.Add(want)
 
 	s.Pop()
 
-	actual, _ := s.Next()
+	got, _ := s.Next()
 
-	if expected != actual {
-		t.Errorf("Expected %s, got %s", expected, actual)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
 func testPopReturnsItem(t *testing.T, s store.Store) {
-	expected := "Item 1"
-	s.Add(expected)
+	want := "Item 1"
+	s.Add(want)
 	s.Add("Item 2")
 
-	actual, _ := s.Pop()
+	got, _ := s.Pop()
 
-	if expected != actual {
-		t.Errorf("Expected %s, got %s", expected, actual)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
 func testEmptyPop(t *testing.T, s store.Store) {
-	actual, _ := s.Pop()
+	got, _ := s.Pop()
+	want := ""
 
-	if actual != "" {
-		t.Errorf("Expected %s, got %s", "", actual)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -94,7 +96,7 @@ func Test_getting_store_from_path(t *testing.T) {
 			want := test.store
 
 			if got != want {
-				t.Errorf("got \"%s\", want \"%s\"", got, want)
+				t.Errorf("got \"%s\" want \"%s\"", got, want)
 			}
 		})
 	}

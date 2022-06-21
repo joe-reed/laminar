@@ -15,8 +15,8 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 	want := "My next item\n"
 	got := runNext(t, s)
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -26,8 +26,8 @@ func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *t
 	want := "All items complete!\n"
 	got := runNext(t, s)
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 

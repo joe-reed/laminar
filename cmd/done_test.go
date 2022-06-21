@@ -18,8 +18,8 @@ func Test_it_completes_item_when_done(t *testing.T) {
 	want := "My next item 2"
 	got, _ := s.Next()
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -32,8 +32,8 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	want := "Item complete\nNext: My next item 2\n"
 	got := runDone(t, s)
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -45,8 +45,8 @@ func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
 	want := "Item complete\nAll items complete!\n"
 	got := runDone(t, s)
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 

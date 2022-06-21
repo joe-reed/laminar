@@ -17,8 +17,8 @@ func Test_it_sets_store_config(t *testing.T) {
 	got := c.GetStorePath()
 	want := "test.txt"
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
@@ -30,8 +30,8 @@ func Test_it_outputs_success_message(t *testing.T) {
 
 	want := "Configured: test.txt\n"
 
-	if want != got {
-		t.Errorf("want \"%s\", got \"%s\"", want, got)
+	if got != want {
+		t.Errorf("got \"%s\" want \"%s\"", got, want)
 	}
 }
 
