@@ -11,13 +11,19 @@ func NewNextCommand(s store.Store) *cobra.Command {
 	return &cobra.Command{
 		Use:   "next",
 		Short: "Get the next item from the list",
-		Run: func(cmd *cobra.Command, args []string) {
-			if s.Next() == "" {
-				fmt.Fprintln(cmd.OutOrStdout(), "All items complete!")
-				return
+		RunE: func(cmd *cobra.Command, args []string) error {
+			next, err := s.Next()
+			if err != nil {
+				return err
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), s.Next())
+			if next == "" {
+				fmt.Fprintln(cmd.OutOrStdout(), "All items complete!")
+				return nil
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), next)
+			return nil
 		},
 	}
 }

@@ -17,5 +17,6 @@ func main() {
 	c, err := config.Load(filepath.Join(home, ".laminar/config.yaml"))
 	cobra.CheckErr(err)
 
-	cmd.Execute(store.FromPath(c.GetStorePath()), c)
+	err = cmd.Execute(store.FromPath(c.GetStorePath()), c)
+	cobra.CheckErr(err)
 }

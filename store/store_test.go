@@ -33,7 +33,7 @@ func runSuite(t *testing.T, factory func() store.Store, teardown func()) {
 func testAddingItem(t *testing.T, s store.Store) {
 	expected := "My new item"
 	s.Add(expected)
-	actual := s.Next()
+	actual, _ := s.Next()
 
 	if expected != actual {
 		t.Errorf("Expected %s, got %s", expected, actual)
@@ -41,7 +41,7 @@ func testAddingItem(t *testing.T, s store.Store) {
 }
 
 func testEmptyNext(t *testing.T, s store.Store) {
-	actual := s.Next()
+	actual, _ := s.Next()
 
 	if actual != "" {
 		t.Errorf("Expected %s, got %s", "", actual)
@@ -55,7 +55,7 @@ func testPopRemovesItem(t *testing.T, s store.Store) {
 
 	s.Pop()
 
-	actual := s.Next()
+	actual, _ := s.Next()
 
 	if expected != actual {
 		t.Errorf("Expected %s, got %s", expected, actual)
@@ -67,7 +67,7 @@ func testPopReturnsItem(t *testing.T, s store.Store) {
 	s.Add(expected)
 	s.Add("Item 2")
 
-	actual := s.Pop()
+	actual, _ := s.Pop()
 
 	if expected != actual {
 		t.Errorf("Expected %s, got %s", expected, actual)
@@ -75,7 +75,7 @@ func testPopReturnsItem(t *testing.T, s store.Store) {
 }
 
 func testEmptyPop(t *testing.T, s store.Store) {
-	actual := s.Pop()
+	actual, _ := s.Pop()
 
 	if actual != "" {
 		t.Errorf("Expected %s, got %s", "", actual)
@@ -106,7 +106,7 @@ func TestApiStore(t *testing.T) {
 	)
 }
 
-func Test_api_store_panics_when_receiving_unexpected_status_code(t *testing.T) {
+func Test_api_store_returns_error_when_receiving_unexpected_status_code(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 	}))
@@ -116,27 +116,21 @@ func Test_api_store_panics_when_receiving_unexpected_status_code(t *testing.T) {
 
 	tests := []struct {
 		title string
-		run   func()
+		run   func() error
 	}{
-		{"pop", func() { s.Pop() }},
-		{"next", func() { s.Next() }},
-		{"add", func() { s.Add("foo") }},
+		{"pop", func() error { _, err := s.Pop(); return err }},
+		{"next", func() error { _, err := s.Next(); return err }},
+		{"add", func() error { return s.Add("foo") }},
 	}
 
 	for _, test := range tests {
 		t.Run(test.title, func(t *testing.T) {
-			defer func() {
-				got := recover()
-				if got == nil {
-					t.Errorf("The code did not panic")
-				}
+			got := test.run().Error()
+			want := "received status code 404"
 
-				want := "received status code 404"
-				if got != want {
-					t.Errorf("got \"%s\", want \"%s\"", got, want)
-				}
-			}()
-			test.run()
+			if got != want {
+				t.Errorf("got \"%s\", want \"%s\"", got, want)
+			}
 		})
 	}
 }

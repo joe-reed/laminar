@@ -16,7 +16,7 @@ func Test_it_completes_item_when_done(t *testing.T) {
 	runDone(t, s)
 
 	want := "My next item 2"
-	got := s.Next()
+	got, _ := s.Next()
 
 	if want != got {
 		t.Errorf("want \"%s\", got \"%s\"", want, got)

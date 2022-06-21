@@ -13,7 +13,7 @@ func Test_it_adds_an_item_to_the_store(t *testing.T) {
 	want := "Test item"
 	runAdd(t, s, want)
 
-	got := s.Next()
+	got, _ := s.Next()
 
 	if want != got {
 		t.Errorf("want \"%s\", got \"%s\"", want, got)

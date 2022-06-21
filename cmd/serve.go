@@ -10,8 +10,13 @@ func NewServeCommand(s store.Store) *cobra.Command {
 	return &cobra.Command{
 		Use:   "serve",
 		Short: "Serve your Laminar instance as an API for use by the configure command",
-		Run: func(cmd *cobra.Command, args []string) {
-			api.Serve(s)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			err := api.Serve(s)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		},
 	}
 }

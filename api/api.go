@@ -11,25 +11,38 @@ import (
 	"github.com/localtunnel/go-localtunnel"
 )
 
-func Serve(s store.Store) {
+func Serve(s store.Store) error {
 	server := &http.Server{Handler: Handler(s)}
 
-	err := server.Serve(Listener())
-
+	listener, err := Listener()
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return server.Serve(listener)
 }
 
 func Handler(s store.Store) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, s.Next())
+		next, err := s.Next()
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Fprint(w, next)
 	})
 
 	mux.HandleFunc("/pop", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, s.Pop())
+		next, err := s.Pop()
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Fprint(w, next)
 	})
 
 	mux.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
@@ -49,12 +62,6 @@ func Handler(s store.Store) http.Handler {
 	return mux
 }
 
-func Listener() net.Listener {
-	listener, err := localtunnel.Listen(localtunnel.Options{Log: log.Default()})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return listener
+func Listener() (net.Listener, error) {
+	return localtunnel.Listen(localtunnel.Options{Log: log.Default()})
 }

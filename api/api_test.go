@@ -27,7 +27,7 @@ func Test_add_adds_an_item_to_the_store(t *testing.T) {
 
 	post(store, "/add", want)
 
-	got := store.Next()
+	got, _ := store.Next()
 
 	if got != want {
 		t.Errorf("got \"%s\" want \"%s\"", got, want)
@@ -92,7 +92,7 @@ func Test_pop_removes_item(t *testing.T) {
 	get(store, "/pop")
 
 	want := "My next item 2"
-	got := store.Next()
+	got, _ := store.Next()
 
 	if got != want {
 		t.Errorf("got \"%s\" want \"%s\"", got, want)

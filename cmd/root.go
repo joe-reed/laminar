@@ -23,7 +23,6 @@ Work alone with a file-based list, or collaborate with others through simple bui
 	return cmd
 }
 
-func Execute(s store.Store, c *config.Config) {
-	err := NewRootCommand(s, c).Execute()
-	cobra.CheckErr(err)
+func Execute(s store.Store, c *config.Config) error {
+	return NewRootCommand(s, c).Execute()
 }

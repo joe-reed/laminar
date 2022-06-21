@@ -11,16 +11,10 @@ import (
 	"strings"
 )
 
-func check(err error) {
-	if err != nil && err != io.EOF {
-		panic(err)
-	}
-}
-
 type Store interface {
-	Add(item string)
-	Next() string
-	Pop() string
+	Add(item string) error
+	Next() (string, error)
+	Pop() (string, error)
 }
 
 func FromPath(path string) Store {
@@ -45,97 +39,132 @@ type FileStore struct {
 	Path string
 }
 
-func (s FileStore) Add(item string) {
+func (s FileStore) Add(item string) error {
 	f, err := os.OpenFile(s.Path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	defer f.Close()
 
 	_, err = f.WriteString(fmt.Sprintf("%s\n", item))
-	check(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (s FileStore) Next() string {
+func (s FileStore) Next() (string, error) {
 	f, err := os.OpenFile(s.Path, os.O_RDWR|os.O_CREATE, 0666)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		return scanner.Text()
+		return scanner.Text(), nil
 	}
 
-	return ""
+	return "", nil
 }
 
-func (s FileStore) Pop() string {
+func (s FileStore) Pop() (string, error) {
 	f, err := os.OpenFile(s.Path, os.O_RDWR|os.O_CREATE, 0666)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	fi, err := f.Stat()
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	buf := bytes.NewBuffer(make([]byte, 0, fi.Size()))
 
 	_, err = f.Seek(0, io.SeekStart)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	_, err = io.Copy(buf, f)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	line, err := buf.ReadBytes('\n')
-	check(err)
+	if err != nil && err != io.EOF {
+		return "", err
+	}
 
 	_, err = f.Seek(0, io.SeekStart)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	nw, err := io.Copy(f, buf)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	err = f.Truncate(nw)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	err = f.Sync()
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	_, err = f.Seek(0, io.SeekStart)
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
 	if len(line) == 0 {
-		return ""
+		return "", nil
 	}
 
 	err = f.Close()
-	check(err)
+	if err != nil {
+		return "", err
+	}
 
-	return string(line[:len(line)-1])
+	return string(line[:len(line)-1]), nil
 }
 
 type InMemoryStore []string
 
-func (s *InMemoryStore) Add(item string) {
+func (s *InMemoryStore) Add(item string) error {
 	*s = append(*s, item)
+
+	return nil
 }
 
-func (s *InMemoryStore) Next() string {
+func (s *InMemoryStore) Next() (string, error) {
 	if len(*s) == 0 {
-		return ""
+		return "", nil
 	}
 
-	return (*s)[0]
+	return (*s)[0], nil
 }
 
-func (s *InMemoryStore) Pop() string {
-	item := s.Next()
+func (s *InMemoryStore) Pop() (string, error) {
+	item, err := s.Next()
+	if err != nil {
+		return "", err
+	}
 
 	if len(*s) == 0 {
-		return ""
+		return "", nil
 	}
 
 	*s = (*s)[1:]
 
-	return item
+	return item, nil
 }
 
 type ApiStore struct {
@@ -147,43 +176,62 @@ func NewApiStore(baseUrl string) Store {
 	return ApiStore{BaseUrl: baseUrl, Client: http.DefaultClient}
 }
 
-func (s ApiStore) Add(item string) {
+func (s ApiStore) Add(item string) error {
 	r, err := s.Client.Post(s.BaseUrl+"/add", "text/plain", strings.NewReader(item))
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	if status := r.StatusCode; status != http.StatusCreated {
-		panic(fmt.Sprintf("received status code %d", status))
+		return fmt.Errorf("received status code %d", status)
 	}
+
+	return nil
 }
 
-func (s ApiStore) Next() string {
+func (s ApiStore) Next() (string, error) {
 	r, err := s.Client.Get(s.BaseUrl + "/next")
-	check(err)
-
-	if status := r.StatusCode; status != http.StatusOK {
-		panic(fmt.Sprintf("received status code %d", status))
+	if err != nil {
+		return "", err
 	}
 
-	return responseToString(r)
+	if status := r.StatusCode; status != http.StatusOK {
+		return "", fmt.Errorf("received status code %d", status)
+	}
+
+	rs, err := responseToString(r)
+	if err != nil {
+		return "", err
+	}
+
+	return rs, nil
 }
 
-func (s ApiStore) Pop() string {
+func (s ApiStore) Pop() (string, error) {
 	r, err := s.Client.Get(s.BaseUrl + "/pop")
-	check(err)
-
-	if status := r.StatusCode; status != http.StatusOK {
-		panic(fmt.Sprintf("received status code %d", status))
+	if err != nil {
+		return "", err
 	}
 
-	return responseToString(r)
+	if status := r.StatusCode; status != http.StatusOK {
+		return "", fmt.Errorf("received status code %d", status)
+	}
+
+	rs, err := responseToString(r)
+	if err != nil {
+		return "", err
+	}
+
+	return rs, nil
 }
 
-func responseToString(r *http.Response) string {
+func responseToString(r *http.Response) (string, error) {
 	defer r.Body.Close()
 
 	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		return "", err
+	}
 
-	check(err)
-
-	return string(b)
+	return string(b), nil
 }
