@@ -77,3 +77,25 @@ func testEmptyPop(t *testing.T, s store.Store) {
 		t.Errorf("Expected %s, got %s", "", actual)
 	}
 }
+
+func Test_getting_store_from_path(t *testing.T) {
+	tests := []struct {
+		title string
+		path  string
+		store store.Store
+	}{
+		{"file", "foo.txt", store.FileStore{Path: "foo.txt"}},
+		{"api", "http://foo.test", store.NewApiStore("http://foo.test")},
+	}
+
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			got := store.FromPath(test.path)
+			want := test.store
+
+			if got != want {
+				t.Errorf("got \"%s\", want \"%s\"", got, want)
+			}
+		})
+	}
+}
