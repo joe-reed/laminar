@@ -13,7 +13,8 @@ func NewConfigureCommand(c *config.Config) *cobra.Command {
 		Short: "Configure the store used by Laminar",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := c.SetStorePath(args[0])
+			c.SetStorePath(args[0])
+			err := c.Write()
 			if err != nil {
 				return err
 			}

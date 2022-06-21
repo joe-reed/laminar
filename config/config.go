@@ -63,8 +63,11 @@ func createFileIfNeeded(v *viper.Viper, err error, file string) error {
 	return nil
 }
 
-func (c *Config) SetStorePath(path string) error {
+func (c *Config) SetStorePath(path string) {
 	c.v.Set("store.path", path)
+}
+
+func (c *Config) Write() error {
 	return c.v.WriteConfig()
 }
 
