@@ -19,31 +19,48 @@ func New() *Config {
 func Load(file string) (*Config, error) {
 	v := viper.New()
 
+	setConfigFile(v, file)
+
+	v.SetDefault("store.path", "list.txt")
+
+	err := v.ReadInConfig()
+	err = createFileIfNeeded(v, err, file)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Config{v: v}, nil
+}
+
+func setConfigFile(v *viper.Viper, file string) {
 	ext := filepath.Ext(file)
 
 	v.AddConfigPath(filepath.Dir(file))
 	v.SetConfigName(strings.TrimSuffix(filepath.Base(file), ext))
 	v.SetConfigType(ext[1:])
+}
 
-	v.SetDefault("store.path", "list.txt")
-
-	if err := v.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			err := os.MkdirAll(filepath.Dir(file), os.ModePerm)
-			if err != nil {
-				return nil, err
-			}
-
-			err = v.SafeWriteConfigAs(file)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
+func createFileIfNeeded(v *viper.Viper, err error, file string) error {
+	if err == nil {
+		return nil
 	}
 
-	return &Config{v: v}, nil
+	if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		return err
+	}
+
+	err = os.MkdirAll(filepath.Dir(file), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = v.SafeWriteConfigAs(file)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Config) SetStorePath(path string) error {
