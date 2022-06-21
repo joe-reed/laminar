@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"bytes"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -127,6 +128,36 @@ func Test_pop_outputs_empty_string_when_no_items_left(t *testing.T) {
 	}
 }
 
+func Test_errors_returned_as_500_responses(t *testing.T) {
+	store := errorStore{Error: "My error string"}
+
+	tests := []struct {
+		title string
+		run   func() (*httptest.ResponseRecorder, error)
+	}{
+		{"pop", func() (*httptest.ResponseRecorder, error) { return get(store, "/pop") }},
+		{"next", func() (*httptest.ResponseRecorder, error) { return get(store, "/next") }},
+		{"add", func() (*httptest.ResponseRecorder, error) { return post(store, "/add", "") }},
+	}
+
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			rr, _ := test.run()
+
+			if status := rr.Code; status != 500 {
+				t.Errorf("got \"%d\" want \"%d\"", status, 500)
+			}
+
+			got := rr.Body.String()
+			want := "My error string"
+
+			if got != want {
+				t.Errorf("got \"%s\", want \"%s\"", got, want)
+			}
+		})
+	}
+}
+
 func get(s store.Store, url string) (*httptest.ResponseRecorder, error) {
 	return handleRequest(s, url, http.MethodPost, "")
 }
@@ -147,4 +178,20 @@ func handleRequest(s store.Store, url string, method string, body string) (*http
 	api.Handler(s).ServeHTTP(rr, req)
 
 	return rr, nil
+}
+
+type errorStore struct {
+	Error string
+}
+
+func (e errorStore) Add(item string) error {
+	return errors.New(e.Error)
+}
+
+func (e errorStore) Next() (string, error) {
+	return "", errors.New(e.Error)
+}
+
+func (e errorStore) Pop() (string, error) {
+	return "", errors.New(e.Error)
 }

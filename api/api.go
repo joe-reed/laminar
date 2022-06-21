@@ -29,7 +29,8 @@ func Handler(s store.Store) http.Handler {
 		next, err := s.Next()
 
 		if err != nil {
-			panic(err)
+			handleError(w, err)
+			return
 		}
 
 		fmt.Fprint(w, next)
@@ -39,7 +40,8 @@ func Handler(s store.Store) http.Handler {
 		next, err := s.Pop()
 
 		if err != nil {
-			panic(err)
+			handleError(w, err)
+			return
 		}
 
 		fmt.Fprint(w, next)
@@ -49,12 +51,16 @@ func Handler(s store.Store) http.Handler {
 		defer r.Body.Close()
 
 		b, err := io.ReadAll(r.Body)
-
 		if err != nil {
-			panic(err)
+			handleError(w, err)
+			return
 		}
 
-		s.Add(string(b))
+		err = s.Add(string(b))
+		if err != nil {
+			handleError(w, err)
+			return
+		}
 
 		w.WriteHeader(http.StatusCreated)
 	})
@@ -64,4 +70,9 @@ func Handler(s store.Store) http.Handler {
 
 func Listener() (net.Listener, error) {
 	return localtunnel.Listen(localtunnel.Options{Log: log.Default()})
+}
+
+func handleError(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	fmt.Fprint(w, err.Error())
 }
