@@ -17,7 +17,9 @@ func NewDoneCommand(s store.Store) *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Completed: %s\n", done)
+			if done != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Completed: %s\n", done)
+			}
 
 			next, err := s.Next()
 			if err != nil {

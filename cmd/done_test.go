@@ -38,6 +38,10 @@ func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
 	assert.Equal(t, "Completed: My next item 1\nAll items complete!\n", runDone(t, s))
 }
 
+func Test_it_does_not_output_success_message_when_all_items_complete(t *testing.T) {
+	assert.Equal(t, "All items complete!\n", runDone(t, &store.InMemoryStore{}))
+}
+
 func runDone(t *testing.T, s store.Store) string {
 	return runCommand(t, s, config.New(), []string{"done"})
 }
