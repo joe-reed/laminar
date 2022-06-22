@@ -128,7 +128,7 @@ func Test_pop_outputs_empty_string_when_no_items_left(t *testing.T) {
 	}
 }
 
-func Test_errors_returned_as_500_responses(t *testing.T) {
+func Test_error_returned_as_500_response(t *testing.T) {
 	store := errorStore{Error: "My error string"}
 
 	tests := []struct {
@@ -149,7 +149,7 @@ func Test_errors_returned_as_500_responses(t *testing.T) {
 			}
 
 			got := rr.Body.String()
-			want := "My error string"
+			want := "My error string\n"
 
 			if got != want {
 				t.Errorf("got \"%s\", want \"%s\"", got, want)
@@ -158,8 +158,31 @@ func Test_errors_returned_as_500_responses(t *testing.T) {
 	}
 }
 
+func Test_invalid_methods_return_405_response(t *testing.T) {
+	store := &store.InMemoryStore{}
+
+	tests := []struct {
+		title string
+		run   func() (*httptest.ResponseRecorder, error)
+	}{
+		{"pop", func() (*httptest.ResponseRecorder, error) { return handleRequest(store, "/pop", http.MethodPost, "") }},
+		{"next", func() (*httptest.ResponseRecorder, error) { return handleRequest(store, "/next", http.MethodPost, "") }},
+		{"add", func() (*httptest.ResponseRecorder, error) { return handleRequest(store, "/add", http.MethodGet, "") }},
+	}
+
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			rr, _ := test.run()
+
+			if status := rr.Code; status != 405 {
+				t.Errorf("got \"%d\" want \"%d\"", status, 405)
+			}
+		})
+	}
+}
+
 func get(s store.Store, url string) (*httptest.ResponseRecorder, error) {
-	return handleRequest(s, url, http.MethodPost, "")
+	return handleRequest(s, url, http.MethodGet, "")
 }
 
 func post(s store.Store, url string, body string) (*httptest.ResponseRecorder, error) {
@@ -167,7 +190,7 @@ func post(s store.Store, url string, body string) (*httptest.ResponseRecorder, e
 }
 
 func handleRequest(s store.Store, url string, method string, body string) (*httptest.ResponseRecorder, error) {
-	req, err := http.NewRequest(http.MethodGet, url, bytes.NewBuffer([]byte(body)))
+	req, err := http.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 
 	if err != nil {
 		return nil, err

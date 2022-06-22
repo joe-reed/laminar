@@ -26,10 +26,14 @@ func Handler(s store.Store) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
-		next, err := s.Next()
+		if r.Method != http.MethodGet {
+			methodNotAllowed(w)
+			return
+		}
 
+		next, err := s.Next()
 		if err != nil {
-			handleError(w, err)
+			serverError(w, err)
 			return
 		}
 
@@ -37,10 +41,14 @@ func Handler(s store.Store) http.Handler {
 	})
 
 	mux.HandleFunc("/pop", func(w http.ResponseWriter, r *http.Request) {
-		next, err := s.Pop()
+		if r.Method != http.MethodGet {
+			methodNotAllowed(w)
+			return
+		}
 
+		next, err := s.Pop()
 		if err != nil {
-			handleError(w, err)
+			serverError(w, err)
 			return
 		}
 
@@ -48,17 +56,22 @@ func Handler(s store.Store) http.Handler {
 	})
 
 	mux.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			methodNotAllowed(w)
+			return
+		}
+
 		defer r.Body.Close()
 
 		b, err := io.ReadAll(r.Body)
 		if err != nil {
-			handleError(w, err)
+			serverError(w, err)
 			return
 		}
 
 		err = s.Add(string(b))
 		if err != nil {
-			handleError(w, err)
+			serverError(w, err)
 			return
 		}
 
@@ -72,7 +85,10 @@ func Listener() (net.Listener, error) {
 	return localtunnel.Listen(localtunnel.Options{Log: log.Default()})
 }
 
-func handleError(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusInternalServerError)
-	fmt.Fprint(w, err.Error())
+func serverError(w http.ResponseWriter, err error) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+}
+
+func methodNotAllowed(w http.ResponseWriter) {
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
