@@ -10,7 +10,7 @@ func NewRootCommand(s store.Store, c *config.Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "laminar",
 		Short: "CLI todo list for focus and flow.",
-		Long: `A FIFO CLI todo list app to help keep you focussed on the next most important thing.
+		Long: `A FIFO todo list to keep you focused on the next most important thing.
 Work alone with a file-based list, or collaborate with others through simple built-in sharing features.`,
 	}
 
