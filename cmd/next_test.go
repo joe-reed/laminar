@@ -5,6 +5,7 @@ import (
 
 	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_it_outputs_the_next_item(t *testing.T) {
@@ -12,23 +13,15 @@ func Test_it_outputs_the_next_item(t *testing.T) {
 
 	s.Add("My next item")
 
-	want := "My next item\n"
-	got := runNext(t, s)
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My next item\n", runNext(t, s))
 }
 
 func Test_it_outputs_a_message_if_getting_next_item_when_all_items_complete(t *testing.T) {
-	s := &store.InMemoryStore{}
-
-	want := "All items complete!\n"
-	got := runNext(t, s)
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(
+		t,
+		"All items complete!\n",
+		runNext(t, &store.InMemoryStore{}),
+	)
 }
 
 func runNext(t *testing.T, s store.Store) string {

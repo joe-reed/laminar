@@ -7,6 +7,7 @@ import (
 
 	"github.com/joe-reed/laminar/api"
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_api_store(t *testing.T) {
@@ -40,12 +41,7 @@ func Test_api_store_returns_error_when_receiving_unexpected_status_code(t *testi
 
 	for _, test := range tests {
 		t.Run(test.title, func(t *testing.T) {
-			got := test.run().Error()
-			want := "received status code 404"
-
-			if got != want {
-				t.Errorf("got \"%s\", want \"%s\"", got, want)
-			}
+			assert.Equal(t, "received status code 404", test.run().Error())
 		})
 	}
 }

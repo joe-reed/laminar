@@ -5,6 +5,7 @@ import (
 
 	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_it_completes_item_when_done(t *testing.T) {
@@ -15,12 +16,9 @@ func Test_it_completes_item_when_done(t *testing.T) {
 
 	runDone(t, s)
 
-	want := "My next item 2"
 	got, _ := s.Next()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My next item 2", got)
 }
 
 func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
@@ -29,12 +27,7 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	s.Add("My next item 1")
 	s.Add("My next item 2")
 
-	want := "Completed: My next item 1\nNext: My next item 2\n"
-	got := runDone(t, s)
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "Completed: My next item 1\nNext: My next item 2\n", runDone(t, s))
 }
 
 func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
@@ -42,12 +35,7 @@ func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
 
 	s.Add("My next item 1")
 
-	want := "Completed: My next item 1\nAll items complete!\n"
-	got := runDone(t, s)
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "Completed: My next item 1\nAll items complete!\n", runDone(t, s))
 }
 
 func runDone(t *testing.T, s store.Store) string {

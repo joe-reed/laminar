@@ -5,28 +5,25 @@ import (
 
 	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_it_adds_an_item_to_the_store(t *testing.T) {
 	s := &store.InMemoryStore{}
 
-	want := "Test item"
-	runAdd(t, s, want)
+	runAdd(t, s, "Test item")
 
 	got, _ := s.Next()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "Test item", got)
 }
 
 func Test_it_outputs_success_message_when_adding_item(t *testing.T) {
-	want := "Item added\n"
-	got := runAdd(t, &store.InMemoryStore{}, "Test item")
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(
+		t,
+		"Item added\n",
+		runAdd(t, &store.InMemoryStore{}, "Test item"),
+	)
 }
 
 func runAdd(t *testing.T, s store.Store, item string) string {

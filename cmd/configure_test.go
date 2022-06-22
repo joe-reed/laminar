@@ -6,6 +6,7 @@ import (
 
 	"github.com/joe-reed/laminar/config"
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_it_sets_store_config(t *testing.T) {
@@ -14,25 +15,14 @@ func Test_it_sets_store_config(t *testing.T) {
 
 	runConfigure(t, c, "test.txt")
 
-	got := c.GetStorePath()
-	want := "test.txt"
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "test.txt", c.GetStorePath())
 }
 
 func Test_it_outputs_success_message(t *testing.T) {
 	v, path := getConfig()
 	defer os.Remove(path)
 
-	got := runConfigure(t, v, "test.txt")
-
-	want := "Configured: test.txt\n"
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "Configured: test.txt\n", runConfigure(t, v, "test.txt"))
 }
 
 func getConfig() (c *config.Config, path string) {

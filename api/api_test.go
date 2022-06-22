@@ -9,30 +9,23 @@ import (
 
 	"github.com/joe-reed/laminar/api"
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_add_returns_201(t *testing.T) {
-	store := &store.InMemoryStore{}
+	rr, _ := post(&store.InMemoryStore{}, "/add", "")
 
-	rr, _ := post(store, "/add", "")
-
-	if status := rr.Code; status != 201 {
-		t.Errorf("got \"%d\" want \"%d\"", status, 201)
-	}
+	assert.Equal(t, 201, rr.Code)
 }
 
 func Test_add_adds_an_item_to_the_store(t *testing.T) {
 	store := &store.InMemoryStore{}
 
-	want := "My next item"
-
-	post(store, "/add", want)
+	post(store, "/add", "My next item")
 
 	got, _ := store.Next()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My next item", got)
 }
 
 func Test_next_returns_200(t *testing.T) {
@@ -41,9 +34,7 @@ func Test_next_returns_200(t *testing.T) {
 
 	rr, _ := get(store, "/next")
 
-	if status := rr.Code; status != 200 {
-		t.Errorf("got \"%d\" want \"%d\"", status, 200)
-	}
+	assert.Equal(t, 200, rr.Code)
 }
 
 func Test_next_outputs_the_next_item(t *testing.T) {
@@ -52,36 +43,19 @@ func Test_next_outputs_the_next_item(t *testing.T) {
 
 	rr, _ := get(store, "/next")
 
-	want := "My next item"
-	got := rr.Body.String()
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My next item", rr.Body.String())
 }
 
 func Test_next_outputs_an_empty_string_when_no_items_left(t *testing.T) {
-	store := &store.InMemoryStore{}
+	rr, _ := get(&store.InMemoryStore{}, "/next")
 
-	rr, _ := get(store, "/next")
-
-	want := ""
-	got := rr.Body.String()
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "", rr.Body.String())
 }
 
 func Test_pop_returns_200(t *testing.T) {
-	store := &store.InMemoryStore{}
-	store.Add("My next item")
+	rr, _ := get(&store.InMemoryStore{}, "/pop")
 
-	rr, _ := get(store, "/pop")
-
-	if status := rr.Code; status != 200 {
-		t.Errorf("got \"%d\" want \"%d\"", status, 200)
-	}
+	assert.Equal(t, 200, rr.Code)
 }
 
 func Test_pop_removes_item(t *testing.T) {
@@ -92,12 +66,9 @@ func Test_pop_removes_item(t *testing.T) {
 
 	get(store, "/pop")
 
-	want := "My next item 2"
 	got, _ := store.Next()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My next item 2", got)
 }
 
 func Test_pop_outputs_next_item(t *testing.T) {
@@ -107,25 +78,13 @@ func Test_pop_outputs_next_item(t *testing.T) {
 
 	rr, _ := get(store, "/pop")
 
-	want := "My next item 1"
-	got := rr.Body.String()
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My next item 1", rr.Body.String())
 }
 
 func Test_pop_outputs_empty_string_when_no_items_left(t *testing.T) {
-	store := &store.InMemoryStore{}
+	rr, _ := get(&store.InMemoryStore{}, "/pop")
 
-	rr, _ := get(store, "/pop")
-
-	want := ""
-	got := rr.Body.String()
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "", rr.Body.String())
 }
 
 func Test_error_returned_as_500_response(t *testing.T) {
@@ -144,16 +103,8 @@ func Test_error_returned_as_500_response(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			rr, _ := test.run()
 
-			if status := rr.Code; status != 500 {
-				t.Errorf("got \"%d\" want \"%d\"", status, 500)
-			}
-
-			got := rr.Body.String()
-			want := "My error string\n"
-
-			if got != want {
-				t.Errorf("got \"%s\", want \"%s\"", got, want)
-			}
+			assert.Equal(t, 500, rr.Code)
+			assert.Equal(t, "My error string\n", rr.Body.String())
 		})
 	}
 }
@@ -174,9 +125,7 @@ func Test_invalid_methods_return_405_response(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			rr, _ := test.run()
 
-			if status := rr.Code; status != 405 {
-				t.Errorf("got \"%d\" want \"%d\"", status, 405)
-			}
+			assert.Equal(t, 405, rr.Code)
 		})
 	}
 }

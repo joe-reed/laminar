@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/joe-reed/laminar/store"
+	"github.com/stretchr/testify/assert"
 )
 
 func runSuite(t *testing.T, factory func() store.Store, teardown func()) {
@@ -27,57 +28,41 @@ func runSuite(t *testing.T, factory func() store.Store, teardown func()) {
 }
 
 func testAddingItem(t *testing.T, s store.Store) {
-	want := "My new item"
-	s.Add(want)
+	s.Add("My new item")
+
 	got, _ := s.Next()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "My new item", got)
 }
 
 func testEmptyNext(t *testing.T, s store.Store) {
 	got, _ := s.Next()
-	want := ""
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "", got)
 }
 
 func testPopRemovesItem(t *testing.T, s store.Store) {
-	want := "Item 2"
 	s.Add("Item 1")
-	s.Add(want)
+	s.Add("Item 2")
 
 	s.Pop()
 
 	got, _ := s.Next()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "Item 2", got)
 }
 
 func testPopReturnsItem(t *testing.T, s store.Store) {
-	want := "Item 1"
-	s.Add(want)
+	s.Add("Item 1")
 	s.Add("Item 2")
 
 	got, _ := s.Pop()
 
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "Item 1", got)
 }
 
 func testEmptyPop(t *testing.T, s store.Store) {
 	got, _ := s.Pop()
-	want := ""
-
-	if got != want {
-		t.Errorf("got \"%s\" want \"%s\"", got, want)
-	}
+	assert.Equal(t, "", got)
 }
 
 func Test_getting_store_from_path(t *testing.T) {
@@ -92,12 +77,7 @@ func Test_getting_store_from_path(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.title, func(t *testing.T) {
-			got := store.FromPath(test.path)
-			want := test.store
-
-			if got != want {
-				t.Errorf("got \"%s\" want \"%s\"", got, want)
-			}
+			assert.Equal(t, test.store, store.FromPath(test.path))
 		})
 	}
 }
