@@ -61,6 +61,7 @@ laminar --help
 `make build`
 
 ## Dependencies
-- [Cobra](https://github.com/spf13/cobra) for the CLI commands
+- [Cobra](https://github.com/spf13/cobra) for CLI commands
 - [Viper](https://github.com/spf13/viper) for managing configuration
 - [go-localtunnel](https://github.com/localtunnel/go-localtunnel) for exposing the local API
+- [Testify](https://github.com/stretchr/testify) for test assertions/utils
