@@ -1,5 +1,5 @@
 bin
 list.txt
 list_test.txt
-config.txt
-config_test.txt
+config.yaml
+config_test.yaml
