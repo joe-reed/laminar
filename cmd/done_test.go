@@ -29,7 +29,7 @@ func Test_it_outputs_success_message_and_next_item_when_done(t *testing.T) {
 	s.Add("My next item 1")
 	s.Add("My next item 2")
 
-	want := "Item complete\nNext: My next item 2\n"
+	want := "Completed: My next item 1\nNext: My next item 2\n"
 	got := runDone(t, s)
 
 	if got != want {
@@ -42,7 +42,7 @@ func Test_it_outputs_a_message_when_completing_last_item(t *testing.T) {
 
 	s.Add("My next item 1")
 
-	want := "Item complete\nAll items complete!\n"
+	want := "Completed: My next item 1\nAll items complete!\n"
 	got := runDone(t, s)
 
 	if got != want {

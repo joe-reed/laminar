@@ -12,8 +12,12 @@ func NewDoneCommand(s store.Store) *cobra.Command {
 		Use:   "done",
 		Short: "Complete the next item on your list",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			s.Pop()
-			fmt.Fprintln(cmd.OutOrStdout(), "Item complete")
+			done, err := s.Pop()
+			if err != nil {
+				return err
+			}
+
+			fmt.Fprintf(cmd.OutOrStdout(), "Completed: %s\n", done)
 
 			next, err := s.Next()
 			if err != nil {
