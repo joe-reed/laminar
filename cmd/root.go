@@ -19,6 +19,7 @@ Work alone with a file-based list, or collaborate with others through simple bui
 	cmd.AddCommand(NewDoneCommand(s))
 	cmd.AddCommand(NewConfigureCommand(c))
 	cmd.AddCommand(NewServeCommand(s))
+	cmd.AddCommand(NewEditCommand(c))
 
 	return cmd
 }
